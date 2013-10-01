@@ -27,6 +27,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Ordering.ArbitraryOrdering;
 import com.google.common.collect.Ordering.IncomparableValueException;
 import com.google.common.collect.testing.Helpers;
@@ -55,6 +56,20 @@ public class OrderingTest extends TestCase {
   // TODO(cpovirk): some of these are inexplicably slow (20-30s) under GWT
 
   private final Ordering<Number> numberOrdering = new NumberOrdering();
+
+    public void testExplicitUnknownFirst() {
+        Ordering<Integer> o = Ordering.explicit(3,1,2).unknownsFirst();
+        List<Integer> vals = Arrays.asList(1, 2, 4, 5, 6, 3);
+        Collections.sort(vals, o);
+        assertEquals(ImmutableList.of(4,5,6,3,1,2), vals);
+    }
+
+    public void testExplicitUnknownLast() {
+        Ordering<Integer> o = Ordering.explicit(3,1,2).unknownsLast();
+        List<Integer> vals = Arrays.asList(1, 2, 4, 5, 6, 3);
+        Collections.sort(vals, o);
+        assertEquals(ImmutableList.of(3, 1, 2, 4, 5, 6), vals);
+    }
 
   public void testAllEqual() {
     Ordering<Object> comparator = Ordering.allEqual();

@@ -20,6 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -58,6 +59,16 @@ final class ExplicitOrdering<T> extends Ordering<T> implements Serializable {
     return builder.build();
   }
 
+    public Ordering<T> unknownsFirst()
+    {
+        return new UnrankedValueOrdering<T>(this, UnrankedValueOrdering.Position.FIRST);
+    }
+
+    public Ordering<T> unknownsLast()
+    {
+        return new UnrankedValueOrdering<T>(this, UnrankedValueOrdering.Position.LAST);
+    }
+
   @Override public boolean equals(@Nullable Object object) {
     if (object instanceof ExplicitOrdering) {
       ExplicitOrdering<?> that = (ExplicitOrdering<?>) object;
@@ -75,4 +86,40 @@ final class ExplicitOrdering<T> extends Ordering<T> implements Serializable {
   }
 
   private static final long serialVersionUID = 0;
+
+  private static class UnrankedValueOrdering<T> extends Ordering<T> implements Serializable
+  {
+      final ExplicitOrdering<? super T> ordering;
+      final Position position;
+      public static enum Position { FIRST, LAST }
+
+      UnrankedValueOrdering(ExplicitOrdering<? super T> ordering, Position position) {
+          this.ordering = ordering;
+          this.position = position;
+      }
+
+      @Override
+      public int compare(T left, T right) {
+          boolean hasLeft = ordering.rankMap.containsKey(left);
+          boolean hasRight = ordering.rankMap.containsKey(right);
+          if( hasLeft ^ hasRight ) {
+              if(position==Position.FIRST) {
+                return hasLeft ? LEFT_IS_GREATER : RIGHT_IS_GREATER;
+              } else {
+                  return hasLeft ? RIGHT_IS_GREATER : LEFT_IS_GREATER;
+              }
+          } else if (!hasLeft) {
+              return 0;
+          }
+          return ordering.compare(left,right);
+      }
+
+      @Override
+      public String toString() {
+          return ordering + ( (position==Position.FIRST) ? ".unknownsFirst()" : ".unknownsLast()");
+      }
+
+      private static final long serialVersionUID = 0;
+  }
+
 }

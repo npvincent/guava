@@ -157,7 +157,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *     duplicate values (according to {@link Object#equals})
    */
   @GwtCompatible(serializable = true)
-  public static <T> Ordering<T> explicit(List<T> valuesInOrder) {
+  public static <T> ExplicitOrdering<T> explicit(List<T> valuesInOrder) {
     return new ExplicitOrdering<T>(valuesInOrder);
   }
 
@@ -185,7 +185,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *     {@link Object#equals(Object)}) are present among the method arguments
    */
   @GwtCompatible(serializable = true)
-  public static <T> Ordering<T> explicit(
+  public static <T> ExplicitOrdering<T> explicit(
       T leastValue, T... remainingValuesInOrder) {
     return explicit(Lists.asList(leastValue, remainingValuesInOrder));
   }
